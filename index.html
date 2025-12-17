@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit Outcomes Extractor - Purdue University Global</title>
+
+    <style>
+        /* Purdue University Color Scheme */
+        :root {
+            --campus-gold: #C28E0E;
+            --athletic-gold: #CEB888;
+            --purdue-black: #000000;
+            --gray: #9D968D;
+            --dark-gray: #373A36;
+            --white: #FFFFFF;
+            --light-bg: #F8F8F8;
+            --border-color: #E0E0E0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-bg);
+            color: var(--purdue-black);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, var(--purdue-black) 0%, var(--dark-gray) 100%);
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        header h1 {
+            color: var(--campus-gold);
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            color: var(--white);
+            font-size: 1.1em;
+            opacity: 0.95;
+        }
+
+        /* Main Content */
+        main {
+            flex: 1;
+            background: var(--white);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Upload Section */
+        .upload-section {
+            text-align: center;
+        }
+
+        .upload-box {
+            border: 3px dashed var(--gray);
+            border-radius: 12px;
+            padding: 60px 40px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background-color: var(--light-bg);
+        }
+
+        .upload-box:hover {
+            border-color: var(--campus-gold);
+            background-color: #FFF9E6;
+        }
+
+        .upload-box.dragover {
+            border-color: var(--campus-gold);
+            background-color: #FFF9E6;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            width: 80px;
+            height: 80px;
+            color: var(--campus-gold);
+            margin-bottom: 20px;
+        }
+
+        .upload-box h2 {
+            color: var(--dark-gray);
+            margin-bottom: 10px;
+            font-size: 1.8em;
+        }
+
+        .upload-box p {
+            color: var(--gray);
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+
+        /* File List */
+        .file-list {
+            margin: 30px 0;
+            text-align: left;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 20px;
+            background-color: var(--light-bg);
+            border-left: 4px solid var(--campus-gold);
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .file-name {
+            font-weight: 600;
+            color: var(--dark-gray);
+        }
+
+        .file-remove {
+            background: none;
+            border: none;
+            color: #dc3545;
+            cursor: pointer;
+            font-size: 1.2em;
+            padding: 5px 10px;
+        }
+
+        .file-remove:hover {
+            opacity: 0.7;
+        }
+
+        /* Buttons */
+        .btn-primary,
+        .btn-secondary {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background-color: var(--campus-gold);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background-color: #A67700;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(194, 142, 14, 0.3);
+        }
+
+        .btn-secondary {
+            background-color: var(--gray);
+            color: var(--white);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--dark-gray);
+            transform: translateY(-2px);
+        }
+
+        .btn-large {
+            padding: 15px 40px;
+            font-size: 1.1em;
+            margin-top: 20px;
+        }
+
+        .btn-primary svg,
+        .btn-secondary svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Results Section */
+        .results-section {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--purdue-black) 0%, var(--dark-gray) 100%);
+            border-radius: 8px;
+        }
+
+        .results-header h2 {
+            color: var(--campus-gold);
+            font-size: 1.8em;
+            margin: 0;
+        }
+
+        .results-stats {
+            display: flex;
+            gap: 20px;
+        }
+
+        .stat {
+            color: var(--white);
+            font-size: 1em;
+        }
+
+        .stat strong {
+            color: var(--campus-gold);
+            font-size: 1.5em;
+            margin-right: 5px;
+        }
+
+        /* Table */
+        .results-table-container {
+            overflow-x: auto;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: var(--white);
+        }
+
+        .results-table thead {
+            background-color: var(--campus-gold);
+            color: var(--white);
+        }
+
+        .results-table th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 1em;
+        }
+
+        .results-table tbody tr {
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.2s ease;
+        }
+
+        .results-table tbody tr:hover {
+            background-color: #FFF9E6;
+        }
+
+        .results-table td {
+            padding: 12px 15px;
+            color: var(--dark-gray);
+        }
+
+        .results-table td:first-child {
+            font-weight: 600;
+            color: var(--campus-gold);
+        }
+
+        .results-table td:nth-child(2) {
+            text-align: center;
+            font-weight: 600;
+        }
+
+        /* Actions */
+        .actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        /* Collapsible Course Sections */
+        .course-section {
+            margin-bottom: 20px;
+            border: 2px solid var(--dark-gray);
+            border-radius: 8px;
+            background-color: var(--white);
+            overflow: hidden;
+        }
+
+        .course-header {
+            background: linear-gradient(135deg, var(--purdue-black) 0%, var(--dark-gray) 100%);
+            color: var(--white);
+            padding: 15px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.3s ease;
+        }
+
+        .course-header:hover {
+            background: linear-gradient(135deg, var(--dark-gray) 0%, var(--gray) 100%);
+        }
+
+        .course-header h3 {
+            margin: 0;
+            font-size: 1.2em;
+            color: var(--campus-gold);
+        }
+
+        .course-header .course-count {
+            background-color: var(--campus-gold);
+            color: var(--purdue-black);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        .course-toggle {
+            color: var(--white);
+            font-size: 1.5em;
+            transition: transform 0.3s ease;
+        }
+
+        .course-toggle.expanded {
+            transform: rotate(180deg);
+        }
+
+        .course-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .course-content.expanded {
+            max-height: 5000px;
+        }
+
+        .course-table-container {
+            padding: 20px;
+            background-color: var(--light-bg);
+        }
+
+        /* Loading Spinner */
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .spinner {
+            border: 4px solid var(--athletic-gold);
+            border-top: 4px solid var(--campus-gold);
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading p {
+            color: var(--gray);
+            font-size: 1.1em;
+        }
+
+        /* Error Display */
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .error svg {
+            width: 40px;
+            height: 40px;
+            flex-shrink: 0;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 30px;
+            color: var(--gray);
+            font-size: 0.9em;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            main {
+                padding: 20px;
+            }
+
+            .upload-box {
+                padding: 40px 20px;
+            }
+
+            .results-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            .btn-primary,
+            .btn-secondary {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .results-table {
+                font-size: 0.9em;
+            }
+
+            .results-table th,
+            .results-table td {
+                padding: 10px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Unit Outcomes Extractor</h1>
+            <p class="subtitle">Extract unit learning outcomes from course PDF files</p>
+        </header>
+
+        <main>
+            <div class="upload-section">
+                <div class="upload-box" id="uploadBox">
+                    <svg class="upload-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+                    <h2>Upload Course Markdown Files</h2>
+                    <p>Drag and drop your .md files here or click to browse</p>
+                    <input type="file" id="fileInput" multiple accept=".md,.markdown" hidden>
+                    <button class="btn-primary" id="browseBtn">Browse Files</button>
+                </div>
+
+                <div class="file-list" id="fileList"></div>
+
+                <button class="btn-primary btn-large" id="processBtn" style="display: none;">
+                    Process Files
+                </button>
+            </div>
+
+            <div class="results-section" id="resultsSection" style="display: none;">
+                <div class="results-header">
+                    <h2>Extracted Outcomes</h2>
+                    <div class="results-stats">
+                        <span class="stat">
+                            <strong id="outcomeCount">0</strong> outcomes found
+                        </span>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button class="btn-primary" id="downloadBtn">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                        Download CSV
+                    </button>
+                    <button class="btn-secondary" id="resetBtn">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        Process More Files
+                    </button>
+                </div>
+
+                <div id="courseResults"></div>
+            </div>
+
+            <div class="loading" id="loading" style="display: none;">
+                <div class="spinner"></div>
+                <p>Processing PDF files...</p>
+            </div>
+
+            <div class="error" id="error" style="display: none;">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p id="errorMessage"></p>
+            </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2025 Purdue University Global - Unit Outcomes Extraction Tool | <strong>v2.1.0</strong> - UI Enhancement</p>
+        </footer>
+    </div>
+
+    <script>
+
+        // Global variables
+        let selectedFiles = [];
+        let csvData = '';
+
+        // DOM Elements
+        const fileInput = document.getElementById('fileInput');
+        const browseBtn = document.getElementById('browseBtn');
+        const uploadBox = document.getElementById('uploadBox');
+        const fileList = document.getElementById('fileList');
+        const processBtn = document.getElementById('processBtn');
+        const resultsSection = document.getElementById('resultsSection');
+        const loading = document.getElementById('loading');
+        const error = document.getElementById('error');
+        const errorMessage = document.getElementById('errorMessage');
+        const resultsBody = document.getElementById('resultsBody');
+        const outcomeCount = document.getElementById('outcomeCount');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const resetBtn = document.getElementById('resetBtn');
+
+        // Event Listeners
+        browseBtn.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', handleFileSelect);
+        uploadBox.addEventListener('click', () => fileInput.click());
+        uploadBox.addEventListener('dragover', handleDragOver);
+        uploadBox.addEventListener('dragleave', handleDragLeave);
+        uploadBox.addEventListener('drop', handleDrop);
+        processBtn.addEventListener('click', processFiles);
+        downloadBtn.addEventListener('click', downloadCSV);
+        resetBtn.addEventListener('click', reset);
+
+        // Handle file selection
+        function handleFileSelect(e) {
+            const files = Array.from(e.target.files);
+            addFiles(files);
+        }
+
+        // Handle drag over
+        function handleDragOver(e) {
+            e.preventDefault();
+            uploadBox.classList.add('dragover');
+        }
+
+        // Handle drag leave
+        function handleDragLeave(e) {
+            e.preventDefault();
+            uploadBox.classList.remove('dragover');
+        }
+
+        // Handle drop
+        function handleDrop(e) {
+            e.preventDefault();
+            uploadBox.classList.remove('dragover');
+            const files = Array.from(e.dataTransfer.files).filter(file =>
+                file.name.endsWith('.md') || file.name.endsWith('.markdown')
+            );
+            addFiles(files);
+        }
+
+        // Add files to the list
+        function addFiles(files) {
+            files.forEach(file => {
+                // Accept .md and .markdown files
+                if ((file.name.endsWith('.md') || file.name.endsWith('.markdown')) &&
+                    !selectedFiles.find(f => f.name === file.name)) {
+                    selectedFiles.push(file);
+                }
+            });
+
+            updateFileList();
+            updateProcessButton();
+        }
+
+        // Update file list display
+        function updateFileList() {
+            if (selectedFiles.length === 0) {
+                fileList.innerHTML = '';
+                return;
+            }
+
+            fileList.innerHTML = '<h3 style="color: var(--dark-gray); margin-bottom: 15px;">Selected Files:</h3>';
+
+            selectedFiles.forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.innerHTML = `
+                    <span class="file-name">${file.name}</span>
+                    <button class="file-remove" onclick="removeFile(${index})">&times;</button>
+                `;
+                fileList.appendChild(fileItem);
+            });
+        }
+
+        // Remove a file from the list
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            updateFileList();
+            updateProcessButton();
+        }
+
+        // Update process button visibility
+        function updateProcessButton() {
+            processBtn.style.display = selectedFiles.length > 0 ? 'inline-flex' : 'none';
+        }
+
+        // Extract text from Markdown file
+        async function extractTextFromMarkdown(file) {
+            return await file.text();
+        }
+
+        // Extract course code from text
+        function extractCourseCode(text) {
+            const match = text.match(/\b([A-Z]{2}\d{3})\b/);
+            return match ? match[1] : 'UNKNOWN';
+        }
+
+        // Extract outcomes from markdown text
+        function extractOutcomes(text, courseCode) {
+            const outcomes = [];
+            const lines = text.split('\n');
+
+            // Find all instances of the trigger phrase
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+
+                // Check for the trigger phrase - this marks the start of outcomes for a unit
+                if (line.match(/After\s+completing\s+this\s+unit.*you\s+should\s+be\s+able\s+to/i)) {
+                    console.log(`Found trigger phrase at line ${i}: "${line.substring(0, 60)}..."`);
+
+                    // Look backwards to find the unit number from the preceding header
+                    let unitNumber = 'UNKNOWN';
+                    for (let j = i - 1; j >= Math.max(0, i - 20); j--) {
+                        const headerLine = lines[j];
+                        // Look for "Unit X" in headers (with or without markdown #)
+                        const unitMatch = headerLine.match(/#{0,6}\s*Unit\s+(\d+)/i);
+                        if (unitMatch) {
+                            unitNumber = unitMatch[1];
+                            console.log(`Found unit number ${unitNumber} in header: "${headerLine.trim()}"`);
+                            break;
+                        }
+                    }
+
+                    // Extract bullet points that follow the trigger phrase
+                    for (let k = i + 1; k < Math.min(i + 50, lines.length); k++) {
+                        let currentText = lines[k].trim();
+
+                        // Skip empty lines
+                        if (currentText.length === 0) {
+                            continue;
+                        }
+
+                        // Check if this line is a bullet point (markdown: - or • or *)
+                        const bulletMatch = currentText.match(/^[-•*]\s+(.+)/);
+
+                        if (bulletMatch) {
+                            let outcome = bulletMatch[1].trim();
+                            console.log(`Found bullet point: "${outcome.substring(0, 50)}..."`);
+
+                            // Check if the outcome continues on the next lines (multi-line outcomes)
+                            let nextLineIndex = k + 1;
+                            while (nextLineIndex < lines.length) {
+                                const nextLine = lines[nextLineIndex].trim();
+
+                                // Stop if we hit empty line, another bullet, or a header, or any non-continuation text
+                                if (nextLine.length === 0 ||
+                                    nextLine.match(/^[-•*]\s+/) ||
+                                    nextLine.match(/^#{1,6}\s/) ||
+                                    nextLine.match(/^Unit\s+\d+/i)) {
+                                    break;
+                                }
+
+                                // Continue the outcome
+                                outcome += ' ' + nextLine;
+                                k = nextLineIndex;  // Skip these lines in the main loop
+                                nextLineIndex++;
+                            }
+
+                            // Only add if it's substantial
+                            if (outcome.length > 5) {
+                                outcomes.push({
+                                    courseCode: courseCode,
+                                    unit: unitNumber,
+                                    outcome: outcome.trim()
+                                });
+                            }
+                        } else {
+                            // If we hit a non-empty, non-bullet line, we've left the outcomes section
+                            console.log(`Stopping at non-bullet line ${k}: "${currentText.substring(0, 40)}..."`);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            console.log(`Total outcomes found: ${outcomes.length}`);
+            return outcomes;
+        }
+
+        // Convert outcomes to CSV
+        function convertToCSV(outcomes) {
+            if (outcomes.length === 0) {
+                return 'Course Code,Unit,Outcome\n';
+            }
+
+            let csv = 'Course Code,Unit,Outcome\n';
+            outcomes.forEach(item => {
+                const escapedOutcome = item.outcome.replace(/"/g, '""');
+                csv += `"${item.courseCode}","${item.unit}","${escapedOutcome}"\n`;
+            });
+
+            return csv;
+        }
+
+        // Process the PDF files
+        async function processFiles() {
+            if (selectedFiles.length === 0) return;
+
+            // Hide error if showing
+            error.style.display = 'none';
+
+            // Show loading
+            loading.style.display = 'block';
+            document.querySelector('.upload-section').style.display = 'none';
+
+            try {
+                let allOutcomes = [];
+
+                // Process each Markdown file
+                for (const file of selectedFiles) {
+                    const text = await extractTextFromMarkdown(file);
+                    const courseCode = extractCourseCode(text);
+                    const outcomes = extractOutcomes(text, courseCode);
+                    allOutcomes = allOutcomes.concat(outcomes);
+                }
+
+                // Generate CSV
+                const csv = convertToCSV(allOutcomes);
+
+                // Hide loading
+                loading.style.display = 'none';
+
+                // Display results
+                displayResults(allOutcomes, csv);
+
+            } catch (err) {
+                loading.style.display = 'none';
+                showError(err.message || 'An error occurred while processing the files');
+            }
+        }
+
+        // Display results
+        function displayResults(outcomes, csv) {
+            csvData = csv;
+
+            // Update count
+            outcomeCount.textContent = outcomes.length;
+
+            // Group outcomes by course code
+            const courseGroups = {};
+            outcomes.forEach(outcome => {
+                if (!courseGroups[outcome.courseCode]) {
+                    courseGroups[outcome.courseCode] = [];
+                }
+                courseGroups[outcome.courseCode].push(outcome);
+            });
+
+            // Populate course sections
+            const courseResults = document.getElementById('courseResults');
+            courseResults.innerHTML = '';
+
+            Object.keys(courseGroups).sort().forEach(courseCode => {
+                const courseOutcomes = courseGroups[courseCode];
+
+                const courseSection = document.createElement('div');
+                courseSection.className = 'course-section';
+
+                courseSection.innerHTML = `
+                    <div class="course-header" onclick="toggleCourse('${courseCode}')">
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <h3>${courseCode}</h3>
+                            <span class="course-count">${courseOutcomes.length} outcomes</span>
+                        </div>
+                        <span class="course-toggle" id="toggle-${courseCode}">▼</span>
+                    </div>
+                    <div class="course-content" id="content-${courseCode}">
+                        <div class="course-table-container">
+                            <table class="results-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 80px;">Unit</th>
+                                        <th>Outcome</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${courseOutcomes.map(outcome => `
+                                        <tr>
+                                            <td style="text-align: center; font-weight: 600;">${outcome.unit}</td>
+                                            <td>${outcome.outcome}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+
+                courseResults.appendChild(courseSection);
+            });
+
+            // Show results section
+            resultsSection.style.display = 'block';
+        }
+
+        // Toggle course section
+        function toggleCourse(courseCode) {
+            const content = document.getElementById(`content-${courseCode}`);
+            const toggle = document.getElementById(`toggle-${courseCode}`);
+
+            if (content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                toggle.classList.remove('expanded');
+            } else {
+                content.classList.add('expanded');
+                toggle.classList.add('expanded');
+            }
+        }
+
+        // Download CSV
+        function downloadCSV() {
+            const blob = new Blob([csvData], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `unit-outcomes-${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+
+        // Reset the application
+        function reset() {
+            selectedFiles = [];
+            csvData = '';
+            fileInput.value = '';
+            fileList.innerHTML = '';
+            resultsSection.style.display = 'none';
+            document.querySelector('.upload-section').style.display = 'block';
+            error.style.display = 'none';
+            updateProcessButton();
+        }
+
+        // Show error message
+        function showError(message) {
+            errorMessage.textContent = message;
+            error.style.display = 'flex';
+            document.querySelector('.upload-section').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
