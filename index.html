@@ -472,7 +472,7 @@
     <div class="container">
         <header>
             <h1>Unit Outcomes Extractor</h1>
-            <p class="subtitle">Extract unit learning outcomes from course PDF files</p>
+            <p class="subtitle">Extract unit learning outcomes from dev guides in .md (markdown) format</p>
         </header>
 
         <main>
@@ -524,7 +524,7 @@
 
             <div class="loading" id="loading" style="display: none;">
                 <div class="spinner"></div>
-                <p>Processing PDF files...</p>
+                <p>Processing markdown files...</p>
             </div>
 
             <div class="error" id="error" style="display: none;">
@@ -536,7 +536,7 @@
         </main>
 
         <footer>
-            <p>&copy; 2025 Purdue University Global - Unit Outcomes Extraction Tool | <strong>v2.1.0</strong> - UI Enhancement</p>
+            <p>&copy; 2025 Purdue University Global - Unit Outcomes Extraction Tool | <strong>v2.1.1</strong> - Text Updates</p>
         </footer>
     </div>
 
@@ -754,7 +754,7 @@
             return csv;
         }
 
-        // Process the PDF files
+        // Process the markdown files
         async function processFiles() {
             if (selectedFiles.length === 0) return;
 

@@ -2,7 +2,7 @@
 
 A web application that extracts unit learning outcomes from course Markdown files and exports them to CSV format. This is a **client-side only** application that runs entirely in your browser - no server required!
 
-**Current Version: 2.1.0** - UI Enhancement
+**Current Version: 2.1.1** - Text Updates
 
 ## Features
 
@@ -119,6 +119,12 @@ Tested and working on:
 - No installation or build process required
 
 ## Version History
+
+### v2.1.1 - Text Updates (2025-01-17)
+**Content Corrections**
+- 📝 Updated subtitle from "course PDF files" to "dev guides in .md (markdown) format"
+- 📝 Changed loading message from "Processing PDF files..." to "Processing markdown files..."
+- 📝 Updated code comments to reference markdown instead of PDF
 
 ### v2.1.0 - UI Enhancement (2025-01-17)
 **User Interface Improvements**
